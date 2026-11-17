@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicPulse | Citizen Grievance & Public Issue Portal</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Top Header Bar -->
+  <header class="navbar">
+    <div class="nav-brand" onclick="navigateTo('home')">
+      <div class="emblem">🏛️</div>
+      <div>
+        <div class="portal-title">CivicPulse</div>
+        <div class="portal-tagline">Public Issue & Citizen Grievance Portal</div>
+      </div>
+    </div>
+
+    <!-- Cluster / Pod Health Indicator (Works Online & Offline) -->
+    <div class="nav-center">
+      <div id="healthBadge" class="health-pill" title="System Connection Status">
+        <span class="pulse-dot"></span>
+        <div class="health-meta">
+          <span id="healthStatusText" class="health-main">🟢 Online (Active)</span>
+          <span id="podText" class="health-sub">Mode: Ready</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role Switcher -->
+    <div class="nav-role-group">
+      <div class="role-selector-card">
+        <label for="roleSelect" class="role-label">Active Role:</label>
+        <select id="roleSelect" class="role-select">
+          <option value="Citizen">👤 Citizen</option>
+          <option value="Department Officer">👮 Department Officer</option>
+          <option value="Supervisor">👔 Supervisor</option>
+          <option value="Admin">⚙️ Administrator</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="navigateTo('submit')">+ File Grievance</button>
+    </div>
+  </header>
+
+  <!-- 8 Visible Screen Tabs Bar -->
+  <nav class="sub-nav">
+    <div class="nav-links">
+      <button class="nav-tab active" data-screen="home" onclick="navigateTo('home')">
+        🏠 Screen 1: Home & Feed
+      </button>
+      <button class="nav-tab" data-screen="submit" onclick="navigateTo('submit')">
+        ✍️ Screen 2: Lodge Grievance
+      </button>
+      <button class="nav-tab" data-screen="track" onclick="navigateTo('track')">
+        📋 Screen 3: My Grievances & Feedback
+      </button>
+      <button class="nav-tab" data-screen="officer" onclick="navigateTo('officer')">
+        👮 Screen 4: Officer Workspace
+      </button>
+      <button class="nav-tab" data-screen="supervisor" onclick="navigateTo('supervisor')">
+        👔 Screen 5: Supervisor Desk & Escalation
+      </button>
+      <button class="nav-tab" data-screen="admin" onclick="navigateTo('admin')">
+        ⚙️ Screen 6: Admin Console
+      </button>
+      <button class="nav-tab" data-screen="reports" onclick="navigateTo('reports')">
+        📊 Screen 7: Mandatory Reports (4)
+      </button>
+      <button class="nav-tab" data-screen="timeline" onclick="navigateTo('timeline')">
+        📜 Screen 8: Lifecycle Timeline
+      </button>
+    </div>
+  </nav>
+
+  <!-- Workspace Guidance Strip -->
+  <div class="role-indicator-strip" id="roleBanner">
+    <span>Active Workspace: <strong>Citizen Portal</strong> • Browse issues, lodge grievances, and rate resolutions.</span>
+  </div>
+
+  <main class="main-content">
+    
+    <!-- ========================================================= -->
+    <!-- SCREEN 1: Home & Public Grievance Feed Screen             -->
+    <!-- ========================================================= -->
+    <section id="screen-home" class="screen-view active">
+      <!-- Metric Counters -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon">📋</div>
+          <div>
+            <div class="metric-value" id="statTotal">5</div>
+            <div class="metric-label">Total Grievances</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon icon-submitted">📥</div>
+          <div>
+            <div class="metric-value" id="statSubmitted">2</div>
+            <div class="metric-label">Submitted / Unassigned</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon icon-progress">⚙️</div>
+          <div>
+            <div class="metric-value" id="statInProgress">1</div>
+            <div class="metric-label">Under Investigation</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon icon-escalated">🔥</div>
+          <div>
+            <div class="metric-value" id="statEscalated">1</div>
+            <div class="metric-label">Escalated / Urgent</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon icon-resolved">✅</div>
+          <div>
+            <div class="metric-value" id="statResolved">2</div>
+            <div class="metric-label">Resolved & Closed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="control-panel">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="homeSearchInput" placeholder="Search by Ticket ID (e.g. CP-1001), location, or description..." />
+        </div>
+        <div class="filter-group">
+          <select id="homeCategoryFilter">
+            <option value="all">All Departments</option>
+            <option value="Roads & Transport">Roads & Transport</option>
+            <option value="Water Supply">Water Supply</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Sanitation">Sanitation</option>
+            <option value="Health & Hygiene">Health & Hygiene</option>
+          </select>
+          <select id="homeStatusFilter">
+            <option value="all">All Statuses</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Assigned">Assigned</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Escalated">Escalated</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="fetchComplaints()">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <div class="section-heading-bar">
+        <h2>Public Grievance Feed (Screen 1)</h2>
+        <span id="homeResultsCount" class="results-text">Showing registered issues</span>
+      </div>
+      <div id="homeComplaintsGrid" class="cards-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 2: Lodge Grievance Form                            -->
+    <!-- ========================================================= -->
+    <section id="screen-submit" class="screen-view">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>✍️ Lodge a Public Grievance (Screen 2)</h2>
+          <p>Submit an infrastructure issue with description, photos, and location for municipal resolution.</p>
+        </div>
+
+        <form id="grievanceForm" class="styled-form">
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label for="formCitizenName">Citizen Full Name *</label>
+              <input type="text" id="formCitizenName" required placeholder="e.g. Ramesh Varma" />
+            </div>
+            <div class="form-field">
+              <label for="formCitizenPhone">Contact Mobile Number *</label>
+              <input type="tel" id="formCitizenPhone" required placeholder="e.g. +91 98765 43210" />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="formTitle">Grievance Title / Short Summary *</label>
+            <input type="text" id="formTitle" required placeholder="e.g. Broken water pipe leaking on main cross road" />
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label for="formCategory">Department Category *</label>
+              <select id="formCategory" required>
+                <option value="Roads & Transport">Roads & Transport</option>
+                <option value="Water Supply">Water Supply</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Sanitation">Sanitation</option>
+                <option value="Health & Hygiene">Health & Hygiene</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="formPriority">Urgency Level *</label>
+              <select id="formPriority" required>
+                <option value="Low">Low (Routine)</option>
+                <option value="Medium" selected>Medium (Standard)</option>
+                <option value="High">High (High Risk)</option>
+                <option value="Urgent">Urgent (Emergency Hazard)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="formLocation">Ward No & Exact Location / Landmark *</label>
+            <input type="text" id="formLocation" required placeholder="e.g. Ward 18, 5th Cross, Beside Canara Bank" />
+          </div>
+
+          <div class="form-field">
+            <label for="formDescription">Detailed Description of Issue *</label>
+            <textarea id="formDescription" rows="4" required placeholder="Describe the physical hazard, how long it has been broken, affected commuters..."></textarea>
+          </div>
+
+          <!-- Photo Upload & Presets -->
+          <div class="form-field">
+            <label>Attach Evidence Photo (Select Preset or Paste URL) *</label>
+            <div class="image-preset-picker">
+              <button type="button" class="preset-btn active" onclick="selectPresetImage(0)">🛣️ Pothole</button>
+              <button type="button" class="preset-btn" onclick="selectPresetImage(1)">💧 Water Burst</button>
+              <button type="button" class="preset-btn" onclick="selectPresetImage(2)">💡 Streetlight</button>
+              <button type="button" class="preset-btn" onclick="selectPresetImage(3)">🗑️ Garbage</button>
+              <button type="button" class="preset-btn" onclick="selectPresetImage(4)">🚰 Drainage</button>
+            </div>
+            <input type="url" id="formImageUrl" placeholder="Or enter an image URL..." />
+            <div class="preview-box">
+              <img id="formImagePreview" src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=500&auto=format&fit=crop&q=60" alt="Evidence Preview" />
+              <span class="preview-caption">Selected Evidence Image Preview</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="navigateTo('home')">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnSubmitGrievance">🚀 Submit Public Grievance</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 3: Citizen Tracking & Feedback Screen              -->
+    <!-- ========================================================= -->
+    <section id="screen-track" class="screen-view">
+      <div class="section-heading-bar">
+        <div>
+          <h2>📋 My Grievances & Citizen Feedback (Screen 3)</h2>
+          <p class="section-sub">Track real-time progress of your reported civic issues and rate resolved complaints with 1–5 stars.</p>
+        </div>
+      </div>
+      <div id="citizenTrackGrid" class="cards-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 4: Department Officer Workspace Screen             -->
+    <!-- ========================================================= -->
+    <section id="screen-officer" class="screen-view">
+      <div class="workspace-banner officer-banner">
+        <div>
+          <h2>👮 Department Officer Workspace (Screen 4)</h2>
+          <p>Logged In: <strong id="officerNameDisplay">Er. Rajesh Varma</strong> • Department: <strong id="officerDeptDisplay">Roads & Transport</strong></p>
+        </div>
+        <div class="officer-filter">
+          <label for="officerSelectFilter">Select Officer Profile:</label>
+          <select id="officerSelectFilter" onchange="switchOfficerProfile(this.value)">
+            <option value="Er. Rajesh Varma">Er. Rajesh Varma (Roads)</option>
+            <option value="Er. Meena Swaminathan">Er. Meena Swaminathan (Water)</option>
+            <option value="Er. David D’Souza">Er. David D’Souza (Electricity)</option>
+            <option value="Insp. Sunita Patil">Insp. Sunita Patil (Sanitation)</option>
+            <option value="Dr. Anand Deshmukh">Dr. Anand Deshmukh (Health)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-heading-bar">
+        <h3>Assigned Grievance Queue</h3>
+        <span id="officerCountText" class="results-text">Loading...</span>
+      </div>
+      <div id="officerTasksGrid" class="cards-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 5: Supervisor Assignment & Escalation Desk Screen  -->
+    <!-- ========================================================= -->
+    <section id="screen-supervisor" class="screen-view">
+      <div class="workspace-banner supervisor-banner">
+        <div>
+          <h2>👔 Supervisor Assignment & Escalation Desk (Screen 5)</h2>
+          <p>Allocate new citizen grievances to department officers and escalate overdue SLA breaches (> 48 hrs).</p>
+        </div>
+      </div>
+
+      <div class="section-heading-bar">
+        <h3>Municipal Jurisdiction Queue</h3>
+        <span id="supervisorCountText" class="results-text">Loading...</span>
+      </div>
+      <div id="supervisorGrid" class="cards-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 6: Admin Management Console Screen                 -->
+    <!-- ========================================================= -->
+    <section id="screen-admin" class="screen-view">
+      <div class="section-heading-bar">
+        <div>
+          <h2>⚙️ Admin System Management Console (Screen 6)</h2>
+          <p class="section-sub">Master roster of departmental officers and Kubernetes 3-tier architecture health.</p>
+        </div>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>🏢 Registered Departments & Officers</h3>
+          </div>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Officer ID</th>
+                <th>Officer Name</th>
+                <th>Department</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody id="adminOfficersTable">
+              <!-- Seeded officers -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>☸️ Kubernetes Architecture Health</h3>
+          </div>
+          <div class="k8s-status-list">
+            <div class="status-item">
+              <span>Frontend Pods (Nginx Alpine)</span>
+              <span class="badge badge-resolved">2 / 2 Running</span>
+            </div>
+            <div class="status-item">
+              <span>Backend API Pods (Node.js)</span>
+              <span class="badge badge-resolved">2 / 2 Running (Load Balanced)</span>
+            </div>
+            <div class="status-item">
+              <span>Database (PostgreSQL 15)</span>
+              <span class="badge badge-resolved">1 / 1 Running (PVC Bound)</span>
+            </div>
+            <div class="status-item">
+              <span>Healthcheck Probe (/healthz)</span>
+              <span class="badge badge-resolved">HTTP 200 OK</span>
+            </div>
+            <div class="status-item">
+              <span>NodePort Service Port</span>
+              <span class="badge badge-submitted">Port 30080</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 7: Mandatory Reports (4)                           -->
+    <!-- ========================================================= -->
+    <section id="screen-reports" class="screen-view">
+      <div class="section-heading-bar">
+        <div>
+          <h2>📊 Mandatory Analytical Reports (Screen 7)</h2>
+          <p class="section-sub">Automated reporting engine compliant with the academic project evaluation syllabus.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="exportCurrentReport()">📥 Export Current Report (CSV)</button>
+      </div>
+
+      <div class="reports-nav">
+        <button class="report-tab active" data-report="category" onclick="switchReportTab('category')">
+          1. Complaint Category Report
+        </button>
+        <button class="report-tab" data-report="pending" onclick="switchReportTab('pending')">
+          2. Pending Complaint Report
+        </button>
+        <button class="report-tab" data-report="resolved" onclick="switchReportTab('resolved')">
+          3. Resolved Complaint Report
+        </button>
+        <button class="report-tab" data-report="performance" onclick="switchReportTab('performance')">
+          4. Department Performance Report
+        </button>
+      </div>
+
+      <!-- Report 1: Category -->
+      <div id="report-view-category" class="report-display active">
+        <div class="report-header-info">
+          <h3>📑 Report 1: Complaint Category Breakdown</h3>
+          <p>Distribution of received grievances across municipal sectors, along with category-wise resolution percentage.</p>
+        </div>
+        <div class="table-container">
+          <table class="report-table" id="tableReportCategory">
+            <thead>
+              <tr>
+                <th>Category / Department</th>
+                <th>Total Lodged</th>
+                <th>Pending</th>
+                <th>Resolved</th>
+                <th>Urgent Issues</th>
+                <th>Resolution Rate</th>
+              </tr>
+            </thead>
+            <tbody><!-- Injected --></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Report 2: Pending -->
+      <div id="report-view-pending" class="report-display">
+        <div class="report-header-info">
+          <h3>⏳ Report 2: Pending Grievance Aging Report</h3>
+          <p>Active unresolved complaints with aging duration in days and SLA breach flags (> 3 days).</p>
+        </div>
+        <div class="table-container">
+          <table class="report-table" id="tableReportPending">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Title</th>
+                <th>Department</th>
+                <th>Location</th>
+                <th>Priority</th>
+                <th>Assigned Officer</th>
+                <th>Days Open</th>
+                <th>SLA Compliance</th>
+              </tr>
+            </thead>
+            <tbody><!-- Injected --></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Report 3: Resolved -->
+      <div id="report-view-resolved" class="report-display">
+        <div class="report-header-info">
+          <h3>✅ Report 3: Resolved Complaints & Citizen Feedback Report</h3>
+          <p>Resolution turnaround duration, officer closure notes, and citizen star ratings.</p>
+        </div>
+        <div class="table-container">
+          <table class="report-table" id="tableReportResolved">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Title</th>
+                <th>Department</th>
+                <th>Resolved By</th>
+                <th>Resolution Time (Hours)</th>
+                <th>Citizen Rating</th>
+                <th>Citizen Feedback Review</th>
+              </tr>
+            </thead>
+            <tbody><!-- Injected --></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Report 4: Performance -->
+      <div id="report-view-performance" class="report-display">
+        <div class="report-header-info">
+          <h3>🏆 Report 4: Department-wise Performance Report</h3>
+          <p>Comparative metrics on speed, resolution percentage, and citizen satisfaction ratings.</p>
+        </div>
+        <div class="table-container">
+          <table class="report-table" id="tableReportPerformance">
+            <thead>
+              <tr>
+                <th>Department</th>
+                <th>Head Officer</th>
+                <th>Total Received</th>
+                <th>Resolved</th>
+                <th>Pending</th>
+                <th>Resolution Rate</th>
+                <th>Avg Resolution Time</th>
+                <th>Citizen Satisfaction</th>
+                <th>SLA Standing</th>
+              </tr>
+            </thead>
+            <tbody><!-- Injected --></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SCREEN 8: Full-Page Lifecycle Audit Timeline Screen       -->
+    <!-- ========================================================= -->
+    <section id="screen-timeline" class="screen-view">
+      <div class="section-heading-bar">
+        <div>
+          <h2>📜 Complaint Lifecycle & Audit Timeline (Screen 8)</h2>
+          <p class="section-sub">Inspect end-to-end audit history for any registered municipal grievance.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <label for="timelineComplaintSelect" style="font-size:0.82rem;font-weight:700;">Select Grievance:</label>
+          <select id="timelineComplaintSelect" style="padding:0.4rem 0.75rem;border-radius:6px;border:1px solid #cbd5e1;font-weight:600;" onchange="loadTimelineScreen(this.value)">
+            <!-- Options dynamically populated -->
+          </select>
+        </div>
+      </div>
+
+      <div class="detail-split" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <!-- Left: Complaint Info & Photo -->
+        <div class="detail-left">
+          <div class="detail-image-box">
+            <img id="screen8Image" src="" alt="Grievance Evidence" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;" />
+          </div>
+          <div class="detail-info-block" style="margin-top:1rem;">
+            <p><strong>Ticket ID:</strong> <span id="screen8Ticket" class="ticket-tag">#CP-1001</span></p>
+            <p><strong>Title:</strong> <span id="screen8Title" style="font-weight:700;"></span></p>
+            <p><strong>Category:</strong> <span id="screen8Category"></span></p>
+            <p><strong>Location:</strong> <span id="screen8Location"></span></p>
+            <p><strong>Priority:</strong> <span id="screen8Priority"></span></p>
+            <p><strong>Current Status:</strong> <span id="screen8Status"></span></p>
+            <p><strong>Assigned Officer:</strong> <span id="screen8Officer"></span></p>
+            <p><strong>Citizen:</strong> <span id="screen8Citizen"></span></p>
+          </div>
+          <div class="detail-desc-block">
+            <h4>Citizen Description:</h4>
+            <p id="screen8Desc"></p>
+          </div>
+        </div>
+
+        <!-- Right: Vertical Audit Trail -->
+        <div class="detail-right">
+          <h4 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">📜 Lifecycle Audit Trail & Escalation History</h4>
+          <div id="screen8Timeline" class="vertical-timeline">
+            <!-- Timeline nodes -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Citizen Feedback -->
+  <div id="modalFeedback" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⭐ Submit Grievance Resolution Feedback</h3>
+        <button class="close-x" onclick="closeFeedbackModal()">&times;</button>
+      </div>
+      <form id="feedbackForm" onsubmit="submitFeedback(event)">
+        <input type="hidden" id="feedbackComplaintId" />
+        <div class="form-field">
+          <label>Citizen Star Rating (1 to 5 Stars) *</label>
+          <div class="star-rating-box">
+            <button type="button" class="star-btn" data-star="1" onclick="setRating(1)">★</button>
+            <button type="button" class="star-btn" data-star="2" onclick="setRating(2)">★</button>
+            <button type="button" class="star-btn" data-star="3" onclick="setRating(3)">★</button>
+            <button type="button" class="star-btn" data-star="4" onclick="setRating(4)">★</button>
+            <button type="button" class="star-btn active" data-star="5" onclick="setRating(5)">★</button>
+          </div>
+          <input type="hidden" id="feedbackRatingValue" value="5" />
+        </div>
+        <div class="form-field">
+          <label for="feedbackText">Feedback Remarks / Comments</label>
+          <textarea id="feedbackText" rows="3" placeholder="Share your experience with resolution speed and repair quality..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Rating</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Officer Update Status -->
+  <div id="modalOfficerAction" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🛠️ Officer Resolution & Remarks Action</h3>
+        <button class="close-x" onclick="closeOfficerModal()">&times;</button>
+      </div>
+      <form id="officerActionForm" onsubmit="submitOfficerAction(event)">
+        <input type="hidden" id="officerActionComplaintId" />
+        <div class="form-field">
+          <label for="officerActionStatus">Update Status *</label>
+          <select id="officerActionStatus" required>
+            <option value="In Progress">⚙️ In Progress (Field Team On-Site)</option>
+            <option value="Resolved">✅ Resolved (Issue Permanently Fixed)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="officerActionRemarks">Officer Field Remarks</label>
+          <input type="text" id="officerActionRemarks" placeholder="e.g. Dispatched asphalt repair crew" />
+        </div>
+        <div class="form-field">
+          <label for="officerActionResolutionNotes">Resolution Technical Notes (If Resolved)</label>
+          <textarea id="officerActionResolutionNotes" rows="3" placeholder="Describe the physical work done, testing, or parts replaced..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeOfficerModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Record Action</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Supervisor Assign -->
+  <div id="modalSupervisorAssign" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>👔 Assign Complaint to Department Officer</h3>
+        <button class="close-x" onclick="closeSupervisorModal()">&times;</button>
+      </div>
+      <form id="supervisorAssignForm" onsubmit="submitSupervisorAssignment(event)">
+        <input type="hidden" id="supervisorAssignComplaintId" />
+        <div class="form-field">
+          <label for="supervisorOfficerSelect">Assign Responsible Officer *</label>
+          <select id="supervisorOfficerSelect" required>
+            <option value="Er. Rajesh Varma">Er. Rajesh Varma (Roads & Transport)</option>
+            <option value="Er. Meena Swaminathan">Er. Meena Swaminathan (Water Supply)</option>
+            <option value="Er. David D’Souza">Er. David D’Souza (Electricity)</option>
+            <option value="Insp. Sunita Patil">Insp. Sunita Patil (Sanitation)</option>
+            <option value="Dr. Anand Deshmukh">Dr. Anand Deshmukh (Health & Hygiene)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="supervisorRemarksInput">Supervisory Directives / Remarks</label>
+          <input type="text" id="supervisorRemarksInput" placeholder="e.g. Inspect site by 2:00 PM today and report back" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeSupervisorModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Assign Officer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>CivicPulse Enterprise • 8 Minimum Screens & 4 Roles Compliant • <strong>React/Nginx + Node.js + PostgreSQL + Kubernetes</strong></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

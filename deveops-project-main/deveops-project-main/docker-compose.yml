@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6-jammy
+    container_name: civicpulse-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - civicpulse-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: civicpulse-backend
+    restart: always
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongodb:27017/civicpulse
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - civicpulse-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: civicpulse-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - civicpulse-net
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  civicpulse-net:
+    driver: bridge
